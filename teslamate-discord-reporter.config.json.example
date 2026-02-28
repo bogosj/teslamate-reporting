@@ -1,6 +1,7 @@
 {
   "discordToken": "YOUR_DISCORD_BOT_TOKEN_HERE",
   "discordUserId": "YOUR_DISCORD_USER_ID_HERE",
+  "carId": 1,
   "postgres": {
     "host": "database",
     "port": 5432,

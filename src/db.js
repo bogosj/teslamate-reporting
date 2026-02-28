@@ -16,7 +16,8 @@ async function getWeeklyStats() {
     const res = await client.query(`
       SELECT COUNT(*) as drive_count
       FROM drives
-      WHERE start_date > NOW() - INTERVAL '7 days';
+      WHERE start_date > NOW() - INTERVAL '7 days'
+      ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''};
     `);
 
     // In a real TeslaMate installation, charging_processes joins with addresses to filter by geofence.
@@ -29,7 +30,8 @@ async function getWeeklyStats() {
       FROM charging_processes cp
       LEFT JOIN addresses a ON cp.address_id = a.id
       WHERE cp.start_date > NOW() - INTERVAL '7 days'
-      AND a.name = $1;
+      AND a.name = $1
+      ${config.carId ? `AND cp.car_id = ${parseInt(config.carId)}` : ''};
     `, [config.driveCost.homeGeofenceName]);
     
     return {
