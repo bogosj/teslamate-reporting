@@ -21,7 +21,12 @@ async function getWeeklyStats() {
         MAX(distance) as max_distance_km,
         SUM(duration_min) as total_duration_min,
         COUNT(DISTINCT coalesce(end_geofence_id, end_address_id)) as places_visited,
-        AVG(outside_temp_avg) as avg_temp_c
+        AVG(outside_temp_avg) as avg_temp_c,
+        MAX(power_max) as power_max_kw,
+        MIN(power_min) as power_min_kw,
+        SUM(ascent) as ascent_m,
+        SUM(descent) as descent_m,
+        SUM(start_ideal_range_km - end_ideal_range_km) as ideal_range_used_km
       FROM drives
       WHERE start_date > NOW() - INTERVAL '7 days'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''};
@@ -50,6 +55,17 @@ async function getWeeklyStats() {
       GROUP BY state;
     `);
 
+    const superchargeRes = await client.query(`
+      SELECT 
+        COUNT(id) as session_count, 
+        SUM(charge_energy_added) as energy_added, 
+        SUM(cost) as total_cost 
+      FROM charging_processes 
+      WHERE id IN (SELECT DISTINCT charging_process_id FROM charges WHERE fast_charger_present = true) 
+      AND start_date > NOW() - INTERVAL '7 days'
+      ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''};
+    `);
+
     const updateRes = await client.query(`
       SELECT version
       FROM updates 
@@ -68,6 +84,7 @@ async function getWeeklyStats() {
 
     const driveRow = driveRes.rows[0] || {};
     const chargeRow = chargeRes.rows[0] || {};
+    const superchargeRow = superchargeRes.rows[0] || {};
 
     let stateHours = {};
     for (let row of stateRes.rows) {
@@ -83,6 +100,12 @@ async function getWeeklyStats() {
       placesVisited: parseInt(driveRow.places_visited || 0),
       avgTempF: driveRow.avg_temp_c != null ? (driveRow.avg_temp_c * 9 / 5) + 32 : null,
 
+      maxPowerKw: parseFloat(driveRow.power_max_kw || 0),
+      minPowerKw: parseFloat(driveRow.power_min_kw || 0),
+      ascentFt: (driveRow.ascent_m || 0) * 3.28084,
+      descentFt: (driveRow.descent_m || 0) * 3.28084,
+      efficiencyPercent: driveRow.distance_km > 0 && driveRow.ideal_range_used_km > 0 ? (driveRow.distance_km / driveRow.ideal_range_used_km) * 100 : null,
+
       homeEnergyAdded: parseFloat(chargeRow.home_energy_added || 0),
       homeCost: parseFloat(chargeRow.home_total_cost || 0),
       homeSessions: parseInt(chargeRow.home_session_count || 0),
@@ -91,6 +114,10 @@ async function getWeeklyStats() {
       totalEnergyUsed: parseFloat(chargeRow.total_energy_used || 0),
       totalChargeCost: parseFloat(chargeRow.total_cost || 0),
       chargeDurationHours: (chargeRow.total_duration_min || 0) / 60,
+
+      superchargerSessions: parseInt(superchargeRow.session_count || 0),
+      superchargerKwh: parseFloat(superchargeRow.energy_added || 0),
+      superchargerCost: parseFloat(superchargeRow.total_cost || 0),
 
       stateHours: stateHours,
       currentVersion: currentVersionRes.rows.length > 0 ? currentVersionRes.rows[0].version : null,

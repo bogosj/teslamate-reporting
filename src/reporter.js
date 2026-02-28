@@ -26,12 +26,18 @@ async function executeReport() {
     report += `- **Top Speed Reached**: ${stats.maxSpeedMi.toFixed(0)} mph\n`;
     report += `- **Distinct Destinations**: ${stats.placesVisited}\n`;
     if (stats.avgTempF !== null) report += `- **Average Outside Temp**: ${stats.avgTempF.toFixed(1)} °F\n`;
+    if (stats.efficiencyPercent !== null) report += `- **Driving Efficiency**: ${stats.efficiencyPercent.toFixed(1)}% of rated range\n`;
+    report += `- **Elevation Profile**: 📈 ${stats.ascentFt.toFixed(0)} ft climbed / 📉 ${stats.descentFt.toFixed(0)} ft descended\n`;
+    report += `- **Peak Power**: 🏎️ ${stats.maxPowerKw.toFixed(0)} kW max output / 🔋 ${Math.abs(stats.minPowerKw).toFixed(0)} kW max regen\n`;
   }
   report += `\n`;
 
   // 2. Charging & Efficiency
   report += `⚡ **Charging & Efficiency**\n`;
   report += `- **Home Charging**: ${stats.homeSessions} sessions (${stats.homeEnergyAdded.toFixed(2)} kWh added)\n`;
+  if (stats.superchargerSessions > 0) {
+    report += `- **Supercharging**: ${stats.superchargerSessions} sessions (${stats.superchargerKwh.toFixed(2)} kWh added, $${stats.superchargerCost.toFixed(2)})\n`;
+  }
   report += `- **Total Energy Added**: ${stats.totalEnergyAdded.toFixed(2)} kWh\n`;
   if (stats.totalEnergyUsed > 0) {
     report += `- **Charging Efficiency**: ${chargeEfficiency.toFixed(1)}% (Energy Added vs Used)\n`;
