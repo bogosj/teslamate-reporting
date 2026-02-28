@@ -28,9 +28,9 @@ async function getWeeklyStats() {
         SUM(cost) as total_cost,
         COUNT(*) as session_count
       FROM charging_processes cp
-      LEFT JOIN addresses a ON cp.address_id = a.id
+      LEFT JOIN geofences g ON cp.geofence_id = g.id
       WHERE cp.start_date > NOW() - INTERVAL '7 days'
-      AND a.name = $1
+      AND g.name = $1
       ${config.carId ? `AND cp.car_id = ${parseInt(config.carId)}` : ''};
     `, [config.driveCost.homeGeofenceName]);
     
