@@ -26,5 +26,5 @@ Add this block under the `services` section of your TeslaMate `docker-compose.ym
 If you would like to force the weekly report to compile and send immediately (for testing out your configuration), you can run this command against your docker container:
 
 ```bash
-docker exec -it <name_of_the_reporter_container> node src/trigger-report.js
+docker exec -it <name_of_the_reporter_container> npm run trigger-report
 ```
