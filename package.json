@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "identify-cars": "node src/identify-cars.js",
-    "trigger-report": "node src/trigger-report.js"
+    "trigger-report": "node src/trigger-report.js",
+    "trigger-monthly-report": "node src/trigger-monthly-report.js"
   },
   "repository": {
     "type": "git",

@@ -3,18 +3,19 @@ const db = require('./db');
 const discord = require('./discord');
 const config = require('./config');
 
-async function executeReport() {
-  console.log('Building weekly report...');
-  const stats = await db.getWeeklyStats();
+async function executeReport(timeframe = 'Weekly', interval = '7 days') {
+  console.log(`Building ${timeframe.toLowerCase()} report...`);
+  const stats = await db.getStats(interval);
   if (!stats) return;
 
   const costPerMile = stats.distanceMi > 0 ? (stats.totalChargeCost / stats.distanceMi) : 0;
   const chargeEfficiency = stats.totalEnergyUsed > 0 ? (stats.totalEnergyAdded / stats.totalEnergyUsed) * 100 : 0;
 
   const sleepHours = stats.stateHours['asleep'] || 0;
-  const sleepRatio = (sleepHours / (7 * 24)) * 100;
+  const totalHours = interval === '1 month' ? (30 * 24) : (7 * 24);
+  const sleepRatio = (sleepHours / totalHours) * 100;
 
-  let report = `📊 **Weekly Tesla Report**\n\n`;
+  let report = `📊 **${timeframe} Tesla Report**\n\n`;
 
   // 1. Driving Metrics & Extremes
   report += `🚗 **Driving Metrics**\n`;
@@ -49,9 +50,9 @@ async function executeReport() {
 
   // 3. Vehicle State & Lifecycle
   report += `🔋 **Vehicle State**\n`;
-  report += `- **Sleep Time**: ${sleepRatio.toFixed(1)}% of the week (${sleepHours.toFixed(1)} hours)\n`;
+  report += `- **Sleep Time**: ${sleepRatio.toFixed(1)}% of the ${timeframe.toLowerCase()} (${sleepHours.toFixed(1)} hours)\n`;
   if (stats.softwareUpdate) {
-    report += `- **Software Update**: Upgraded to [v${stats.softwareUpdate}](https://www.notateslaapp.com/software-updates/version/${stats.softwareUpdate}/release-notes) this week! 🎉\n`;
+    report += `- **Software Update**: Upgraded to [v${stats.softwareUpdate}](https://www.notateslaapp.com/software-updates/version/${stats.softwareUpdate}/release-notes) this ${timeframe.toLowerCase()}! 🎉\n`;
   } else if (stats.currentVersion) {
     report += `- **Current Software**: [v${stats.currentVersion}](https://www.notateslaapp.com/software-updates/version/${stats.currentVersion}/release-notes)\n`;
   }
@@ -63,8 +64,15 @@ async function executeReport() {
 function init() {
   cron.schedule(config.cadence.weeklyReportCron, async () => {
     console.log('Running scheduled weekly report...');
-    await executeReport();
+    await executeReport('Weekly', '7 days');
   });
+
+  if (config.cadence.monthlyReportCron) {
+    cron.schedule(config.cadence.monthlyReportCron, async () => {
+      console.log('Running scheduled monthly report...');
+      await executeReport('Monthly', '1 month');
+    });
+  }
 }
 
 module.exports = { init, executeReport };

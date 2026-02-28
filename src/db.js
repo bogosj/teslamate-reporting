@@ -11,7 +11,7 @@ const client = new Client({
 
 client.connect().catch(err => console.error('DB Connection error', err));
 
-async function getWeeklyStats() {
+async function getStats(interval = '7 days') {
   try {
     const driveRes = await client.query(`
       SELECT 
@@ -28,7 +28,7 @@ async function getWeeklyStats() {
         SUM(descent) as descent_m,
         SUM(start_ideal_range_km - end_ideal_range_km) as ideal_range_used_km
       FROM drives
-      WHERE start_date > NOW() - INTERVAL '7 days'
+      WHERE start_date > NOW() - INTERVAL '${interval}'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''};
     `);
 
@@ -43,14 +43,14 @@ async function getWeeklyStats() {
         SUM(cp.duration_min) as total_duration_min
       FROM charging_processes cp
       LEFT JOIN geofences g ON cp.geofence_id = g.id
-      WHERE cp.start_date > NOW() - INTERVAL '7 days'
+      WHERE cp.start_date > NOW() - INTERVAL '${interval}'
       ${config.carId ? `AND cp.car_id = ${parseInt(config.carId)}` : ''};
     `, [config.driveCost.homeGeofenceName]);
 
     const stateRes = await client.query(`
-      SELECT state, SUM(EXTRACT(EPOCH FROM (COALESCE(end_date, NOW()) - GREATEST(start_date, NOW() - INTERVAL '7 days')))) / 3600 as hours
+      SELECT state, SUM(EXTRACT(EPOCH FROM (COALESCE(end_date, NOW()) - GREATEST(start_date, NOW() - INTERVAL '${interval}')))) / 3600 as hours
       FROM states
-      WHERE (end_date IS NULL OR end_date > NOW() - INTERVAL '7 days')
+      WHERE (end_date IS NULL OR end_date > NOW() - INTERVAL '${interval}')
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''}
       GROUP BY state;
     `);
@@ -62,14 +62,14 @@ async function getWeeklyStats() {
         SUM(cost) as total_cost 
       FROM charging_processes 
       WHERE id IN (SELECT DISTINCT charging_process_id FROM charges WHERE fast_charger_present = true) 
-      AND start_date > NOW() - INTERVAL '7 days'
+      AND start_date > NOW() - INTERVAL '${interval}'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''};
     `);
 
     const updateRes = await client.query(`
       SELECT version
       FROM updates 
-      WHERE start_date > NOW() - INTERVAL '7 days'
+      WHERE start_date > NOW() - INTERVAL '${interval}'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''}
       ORDER BY start_date DESC LIMIT 1;
     `);
@@ -129,4 +129,4 @@ async function getWeeklyStats() {
   }
 }
 
-module.exports = { getWeeklyStats };
+module.exports = { getStats };

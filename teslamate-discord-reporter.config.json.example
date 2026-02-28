@@ -14,7 +14,8 @@
     "port": 1883
   },
   "cadence": {
-    "weeklyReportCron": "0 9 * * 0"
+    "weeklyReportCron": "0 9 * * 0",
+    "monthlyReportCron": "0 9 1 * *"
   },
   "driveCost": {
     "homeGeofenceName": "Home"
