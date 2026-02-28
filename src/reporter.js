@@ -8,12 +8,15 @@ async function executeReport() {
   const stats = await db.getWeeklyStats();
   if (!stats) return;
 
+  const costPerMile = stats.distanceMi > 0 ? (stats.totalCost / stats.distanceMi) : 0;
+
   const report = `
 📊 **Weekly Tesla Report**
-- **Drives**: ${stats.drives} trips taken
+- **Drives**: ${stats.drives} trips taken (${stats.distanceMi.toFixed(1)} miles)
 - **Home Charging**: ${stats.chargeSessions} sessions
 - **Home Energy Added**: ${parseFloat(stats.energyAdded).toFixed(2)} kWh
 - **Estimated Drive Cost**: $${parseFloat(stats.totalCost).toFixed(2)}
+- **Electricity Cost / Mile**: $${costPerMile.toFixed(3)}
   `;
 
   await discord.sendMessage(report);

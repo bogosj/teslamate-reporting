@@ -14,14 +14,14 @@ client.connect().catch(err => console.error('DB Connection error', err));
 async function getWeeklyStats() {
   try {
     const res = await client.query(`
-      SELECT COUNT(*) as drive_count
+      SELECT 
+        COUNT(*) as drive_count,
+        SUM(distance) as distance_km
       FROM drives
       WHERE start_date > NOW() - INTERVAL '7 days'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''};
     `);
 
-    // In a real TeslaMate installation, charging_processes joins with addresses to filter by geofence.
-    // Simplifying here to show the requested metric calculation conceptually.
     const chargeRes = await client.query(`
       SELECT 
         SUM(charge_energy_added) as energy_added,
@@ -34,8 +34,11 @@ async function getWeeklyStats() {
       ${config.carId ? `AND cp.car_id = ${parseInt(config.carId)}` : ''};
     `, [config.driveCost.homeGeofenceName]);
     
+    const distanceMi = (res.rows[0].distance_km || 0) * 0.621371;
+
     return {
       drives: res.rows[0].drive_count,
+      distanceMi: distanceMi,
       energyAdded: chargeRes.rows[0].energy_added || 0,
       chargeSessions: chargeRes.rows[0].session_count,
       totalCost: chargeRes.rows[0].total_cost || 0
