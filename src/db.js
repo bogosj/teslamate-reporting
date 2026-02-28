@@ -58,6 +58,14 @@ async function getWeeklyStats() {
       ORDER BY start_date DESC LIMIT 1;
     `);
 
+    const currentVersionRes = await client.query(`
+      SELECT version
+      FROM updates 
+      WHERE 1=1
+      ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''}
+      ORDER BY start_date DESC LIMIT 1;
+    `);
+
     const driveRow = driveRes.rows[0] || {};
     const chargeRow = chargeRes.rows[0] || {};
 
@@ -85,6 +93,7 @@ async function getWeeklyStats() {
       chargeDurationHours: (chargeRow.total_duration_min || 0) / 60,
 
       stateHours: stateHours,
+      currentVersion: currentVersionRes.rows.length > 0 ? currentVersionRes.rows[0].version : null,
       softwareUpdate: updateRes.rows.length > 0 ? updateRes.rows[0].version : null
     };
   } catch (err) {
