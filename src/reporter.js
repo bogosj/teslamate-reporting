@@ -52,9 +52,9 @@ async function executeReport(timeframe = 'Weekly', interval = '7 days') {
   report += `🔋 **Vehicle State**\n`;
   report += `- **Sleep Time**: ${sleepRatio.toFixed(1)}% of the ${timeframe.toLowerCase()} (${sleepHours.toFixed(1)} hours)\n`;
   if (stats.softwareUpdate) {
-    report += `- **Software Update**: Upgraded to [v${stats.softwareUpdate}](https://www.notateslaapp.com/software-updates/version/${stats.softwareUpdate}/release-notes) this ${timeframe.toLowerCase()}! 🎉\n`;
+    report += `- **Software Update**: Upgraded to [v${stats.softwareUpdate}](<https://www.notateslaapp.com/software-updates/version/${stats.softwareUpdate}/release-notes>) this ${timeframe.toLowerCase()}! 🎉\n`;
   } else if (stats.currentVersion) {
-    report += `- **Current Software**: [v${stats.currentVersion}](https://www.notateslaapp.com/software-updates/version/${stats.currentVersion}/release-notes)\n`;
+    report += `- **Current Software**: [v${stats.currentVersion}](<https://www.notateslaapp.com/software-updates/version/${stats.currentVersion}/release-notes>)\n`;
   }
 
   await discord.sendMessage(report);
