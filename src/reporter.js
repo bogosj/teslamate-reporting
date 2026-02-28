@@ -8,16 +8,45 @@ async function executeReport() {
   const stats = await db.getWeeklyStats();
   if (!stats) return;
 
-  const costPerMile = stats.distanceMi > 0 ? (stats.totalCost / stats.distanceMi) : 0;
+  const costPerMile = stats.distanceMi > 0 ? (stats.totalChargeCost / stats.distanceMi) : 0;
+  const chargeEfficiency = stats.totalEnergyUsed > 0 ? (stats.totalEnergyAdded / stats.totalEnergyUsed) * 100 : 0;
 
-  const report = `
-📊 **Weekly Tesla Report**
-- **Drives**: ${stats.drives} trips taken (${stats.distanceMi.toFixed(1)} miles)
-- **Home Charging**: ${stats.chargeSessions} sessions
-- **Home Energy Added**: ${parseFloat(stats.energyAdded).toFixed(2)} kWh
-- **Estimated Drive Cost**: $${parseFloat(stats.totalCost).toFixed(2)}
-- **Electricity Cost / Mile**: $${costPerMile.toFixed(3)}
-  `;
+  const sleepHours = stats.stateHours['asleep'] || 0;
+  const sleepRatio = (sleepHours / (7 * 24)) * 100;
+
+  let report = `📊 **Weekly Tesla Report**\n\n`;
+
+  // 1. Driving Metrics & Extremes
+  report += `🚗 **Driving Metrics**\n`;
+  report += `- **Drives**: ${stats.drives} trips taken\n`;
+  report += `- **Distance Driven**: ${stats.distanceMi.toFixed(1)} miles\n`;
+  if (stats.drives > 0) {
+    report += `- **Time Spent Driving**: ${stats.driveDurationHours.toFixed(1)} hours\n`;
+    report += `- **Longest Single Drive**: ${stats.maxDistanceMi.toFixed(1)} miles\n`;
+    report += `- **Top Speed Reached**: ${stats.maxSpeedMi.toFixed(0)} mph\n`;
+    report += `- **Distinct Destinations**: ${stats.placesVisited}\n`;
+    if (stats.avgTempF !== null) report += `- **Average Outside Temp**: ${stats.avgTempF.toFixed(1)} °F\n`;
+  }
+  report += `\n`;
+
+  // 2. Charging & Efficiency
+  report += `⚡ **Charging & Efficiency**\n`;
+  report += `- **Home Charging**: ${stats.homeSessions} sessions (${stats.homeEnergyAdded.toFixed(2)} kWh added)\n`;
+  report += `- **Total Energy Added**: ${stats.totalEnergyAdded.toFixed(2)} kWh\n`;
+  if (stats.totalEnergyUsed > 0) {
+    report += `- **Charging Efficiency**: ${chargeEfficiency.toFixed(1)}% (Energy Added vs Used)\n`;
+  }
+  report += `- **Time Spent Charging**: ${stats.chargeDurationHours.toFixed(1)} hours\n`;
+  report += `- **Total Charging Cost**: $${stats.totalChargeCost.toFixed(2)} (Estimated)\n`;
+  report += `- **Electricity Cost / Mile**: $${costPerMile.toFixed(3)}\n`;
+  report += `\n`;
+
+  // 3. Vehicle State & Lifecycle
+  report += `🔋 **Vehicle State**\n`;
+  report += `- **Sleep Time**: ${sleepRatio.toFixed(1)}% of the week (${sleepHours.toFixed(1)} hours)\n`;
+  if (stats.softwareUpdate) {
+    report += `- **Software Update**: Upgraded to v${stats.softwareUpdate} this week! 🎉\n`;
+  }
 
   await discord.sendMessage(report);
   console.log('Report sent.');
