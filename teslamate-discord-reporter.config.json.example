@@ -1,0 +1,26 @@
+{
+  "discordToken": "YOUR_DISCORD_BOT_TOKEN_HERE",
+  "discordUserId": "YOUR_DISCORD_USER_ID_HERE",
+  "postgres": {
+    "host": "database",
+    "port": 5432,
+    "user": "teslamate",
+    "password": "YOUR_POSTGRES_PASSWORD",
+    "database": "teslamate"
+  },
+  "mqtt": {
+    "host": "mqtt://mosquitto",
+    "port": 1883
+  },
+  "cadence": {
+    "weeklyReportCron": "0 9 * * 0"
+  },
+  "driveCost": {
+    "homeGeofenceName": "Home"
+  },
+  "alerts": {
+    "softwareUpdate": true,
+    "charging": true,
+    "security": true
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "teslamate-reporting",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bogosj/teslamate-reporting.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bogosj/teslamate-reporting/issues"
+  },
+  "homepage": "https://github.com/bogosj/teslamate-reporting#readme",
+  "dependencies": {
+    "discord.js": "^14.25.1",
+    "mqtt": "^5.15.0",
+    "node-cron": "^4.2.1",
+    "pg": "^8.19.0"
+  }
+}
