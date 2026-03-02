@@ -11,7 +11,7 @@ const client = new Client({
 
 client.connect().catch(err => console.error('DB Connection error', err));
 
-async function getStats(interval = '7 days') {
+async function getStats(interval = '7 days', offset = '0 days') {
   try {
     const driveRes = await client.query(`
       SELECT 
@@ -28,7 +28,8 @@ async function getStats(interval = '7 days') {
         SUM(descent) as descent_m,
         SUM(start_ideal_range_km - end_ideal_range_km) as ideal_range_used_km
       FROM drives
-      WHERE start_date > NOW() - INTERVAL '${interval}'
+      WHERE start_date >= NOW() - INTERVAL '${interval}' - INTERVAL '${offset}'
+      AND start_date < NOW() - INTERVAL '${offset}'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''};
     `);
 
@@ -43,14 +44,16 @@ async function getStats(interval = '7 days') {
         SUM(cp.duration_min) as total_duration_min
       FROM charging_processes cp
       LEFT JOIN geofences g ON cp.geofence_id = g.id
-      WHERE cp.start_date > NOW() - INTERVAL '${interval}'
+      WHERE cp.start_date >= NOW() - INTERVAL '${interval}' - INTERVAL '${offset}'
+      AND cp.start_date < NOW() - INTERVAL '${offset}'
       ${config.carId ? `AND cp.car_id = ${parseInt(config.carId)}` : ''};
     `, [config.driveCost.homeGeofenceName]);
 
     const stateRes = await client.query(`
-      SELECT state, SUM(EXTRACT(EPOCH FROM (COALESCE(end_date, NOW()) - GREATEST(start_date, NOW() - INTERVAL '${interval}')))) / 3600 as hours
+      SELECT state, SUM(EXTRACT(EPOCH FROM (LEAST(COALESCE(end_date, NOW()), NOW() - INTERVAL '${offset}') - GREATEST(start_date, NOW() - INTERVAL '${interval}' - INTERVAL '${offset}')))) / 3600 as hours
       FROM states
-      WHERE (end_date IS NULL OR end_date > NOW() - INTERVAL '${interval}')
+      WHERE (end_date IS NULL OR end_date > NOW() - INTERVAL '${interval}' - INTERVAL '${offset}')
+      AND start_date < NOW() - INTERVAL '${offset}'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''}
       GROUP BY state;
     `);
@@ -62,14 +65,16 @@ async function getStats(interval = '7 days') {
         SUM(cost) as total_cost 
       FROM charging_processes 
       WHERE id IN (SELECT DISTINCT charging_process_id FROM charges WHERE fast_charger_present = true) 
-      AND start_date > NOW() - INTERVAL '${interval}'
+      AND start_date >= NOW() - INTERVAL '${interval}' - INTERVAL '${offset}'
+      AND start_date < NOW() - INTERVAL '${offset}'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''};
     `);
 
     const updateRes = await client.query(`
       SELECT version
       FROM updates 
-      WHERE start_date > NOW() - INTERVAL '${interval}'
+      WHERE start_date >= NOW() - INTERVAL '${interval}' - INTERVAL '${offset}'
+      AND start_date < NOW() - INTERVAL '${offset}'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''}
       ORDER BY start_date DESC LIMIT 1;
     `);
@@ -77,7 +82,7 @@ async function getStats(interval = '7 days') {
     const currentVersionRes = await client.query(`
       SELECT version
       FROM updates 
-      WHERE 1=1
+      WHERE start_date <= NOW() - INTERVAL '${offset}'
       ${config.carId ? `AND car_id = ${parseInt(config.carId)}` : ''}
       ORDER BY start_date DESC LIMIT 1;
     `);
