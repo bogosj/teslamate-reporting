@@ -43,7 +43,6 @@ async function executeReport(timeframe = 'Weekly', interval = '7 days') {
     if (stats.avgTempF !== null || (priorStats && priorStats.avgTempF !== null)) report += `- **Average Outside Temp**: ${stats.avgTempF ? stats.avgTempF.toFixed(1) : 'N/A'} °F${priorStats && priorStats.avgTempF !== null ? d(stats.avgTempF || 0, priorStats?.avgTempF, 1) : ''}\n`;
     if (stats.efficiencyPercent !== null || (priorStats && priorStats.efficiencyPercent !== null)) report += `- **Driving Efficiency**: ${stats.efficiencyPercent ? stats.efficiencyPercent.toFixed(1) : 'N/A'}% of rated range${priorStats && priorStats.efficiencyPercent !== null ? d(stats.efficiencyPercent || 0, priorStats?.efficiencyPercent, 1) : ''}\n`;
     report += `- **Elevation Profile**: 📈 ${stats.ascentFt.toFixed(0)} ft climbed${d(stats.ascentFt, priorStats?.ascentFt)} / 📉 ${stats.descentFt.toFixed(0)} ft descended${d(stats.descentFt, priorStats?.descentFt)}\n`;
-    report += `- **Peak Power**: 🏎️ ${stats.maxPowerKw.toFixed(0)} kW max output${priorStats && priorStats.drives > 0 ? d(stats.maxPowerKw, priorStats?.maxPowerKw) : ''} / 🔋 ${Math.abs(stats.minPowerKw).toFixed(0)} kW max regen${priorStats && priorStats.drives > 0 ? d(Math.abs(stats.minPowerKw), Math.abs(priorStats?.minPowerKw || 0)) : ''}\n`;
   }
   report += `\n`;
 

@@ -22,8 +22,6 @@ async function getStats(interval = '7 days', offset = '0 days') {
         SUM(duration_min) as total_duration_min,
         COUNT(DISTINCT coalesce(end_geofence_id, end_address_id)) as places_visited,
         AVG(outside_temp_avg) as avg_temp_c,
-        MAX(power_max) as power_max_kw,
-        MIN(power_min) as power_min_kw,
         SUM(ascent) as ascent_m,
         SUM(descent) as descent_m,
         SUM(start_ideal_range_km - end_ideal_range_km) as ideal_range_used_km
@@ -113,8 +111,6 @@ async function getStats(interval = '7 days', offset = '0 days') {
       placesVisited: parseInt(driveRow.places_visited || 0),
       avgTempF: driveRow.avg_temp_c != null ? (driveRow.avg_temp_c * 9 / 5) + 32 : null,
 
-      maxPowerKw: parseFloat(driveRow.power_max_kw || 0),
-      minPowerKw: parseFloat(driveRow.power_min_kw || 0),
       ascentFt: (driveRow.ascent_m || 0) * 3.28084,
       descentFt: (driveRow.descent_m || 0) * 3.28084,
       efficiencyPercent: driveRow.distance_km > 0 && driveRow.ideal_range_used_km > 0 ? (driveRow.distance_km / driveRow.ideal_range_used_km) * 100 : null,
