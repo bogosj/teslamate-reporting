@@ -135,7 +135,7 @@ async function getStats(interval = '7 days', offset = '0 days') {
       stateHours: stateHours,
       currentVersion: currentVersionRes.rows.length > 0 ? currentVersionRes.rows[0].version : null,
       softwareUpdate: updateRes.rows.length > 0 ? updateRes.rows[0].version : null,
-      odometer: odometerRes.rows.length > 0 ? parseFloat(odometerRes.rows[0].odometer || 0) : null
+      odometer: odometerRes.rows.length > 0 ? parseFloat(odometerRes.rows[0].odometer || 0) * 0.621371 : null
     };
   } catch (err) {
     console.error('Error fetching weekly stats:', err);
