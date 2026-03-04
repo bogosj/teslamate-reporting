@@ -64,6 +64,9 @@ async function executeReport(timeframe = 'Weekly', interval = '7 days') {
 
   // 3. Vehicle State & Lifecycle
   report += `🔋 **Vehicle State**\n`;
+  if (stats.odometer !== null) {
+    report += `- **Odometer**: ${Math.round(stats.odometer).toLocaleString()} miles\n`;
+  }
   report += `- **Sleep Time**: ${sleepRatio.toFixed(1)}% of the ${timeframe.toLowerCase()}${d(sleepRatio, priorSleepRatio, 1)} (${sleepHours.toFixed(1)} hours${d(sleepHours, priorSleepHours, 1)})\n`;
   if (stats.softwareUpdate) {
     report += `- **Software Update**: Upgraded to [v${stats.softwareUpdate}](<https://www.notateslaapp.com/software-updates/version/${stats.softwareUpdate}/release-notes>) this ${timeframe.toLowerCase()}! 🎉\n`;
