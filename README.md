@@ -1,17 +1,16 @@
-# TeslaMate Discord Reporter
+# TeslaMate Reporter
 
-This service runs alongside [TeslaMate](https://github.com/teslamate-org/teslamate) and sends real-time alerts and weekly reports directly to your Discord.
+This service runs alongside [TeslaMate](https://github.com/teslamate-org/teslamate) and sends real-time alerts and weekly reports directly to your notification providers using Apprise.
 
 ## Setup
-1. Follow the [Discord Bot Setup Guide](discord-setup/README.md) to create your bot and get the tokens.
-2. Form your `config.json` filling in your Discord Token and User ID, as well as MQTT and Postgres parameters.
+1. Form your `config.json` filling in your Apprise URL, as well as MQTT and Postgres parameters.
 
 ## Adding to TeslaMate `docker-compose.yml`
 
 Add this block under the `services` section of your TeslaMate `docker-compose.yml`:
 
 ```yaml
-  teslamate-discord-reporter:
+  teslamate-reporter:
     image: ghcr.io/bogosj/teslamate-reporting:main
     restart: always
     depends_on:
@@ -19,7 +18,7 @@ Add this block under the `services` section of your TeslaMate `docker-compose.ym
       - mosquitto
     volumes:
       # Remember to map your local config file onto the container's config.json
-      - ./discord-config.json:/usr/src/app/config.json:ro
+      - ./config.json:/usr/src/app/config.json:ro
 ```
 
 ## Manual Testing

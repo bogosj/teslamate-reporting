@@ -1,7 +1,7 @@
 const mqttComponent = require('./mqtt');
 const reporterComponent = require('./reporter');
 
-console.log('Starting TeslaMate Discord Reporter...');
+console.log('Starting TeslaMate Reporter...');
 
 // Initialize components
 mqttComponent.init();

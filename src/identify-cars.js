@@ -46,8 +46,7 @@ async function identifyCars() {
       console.log('\\nTo select a specific car for the reports, add the "carId" field to your config.json at the top level.');
       console.log('Example:');
       console.log('{');
-      console.log('  "discordToken": "...",');
-      console.log('  "discordUserId": "...",');
+      console.log('  "appriseUrl": "...",');
       console.log(`  "carId": ${res.rows.length > 0 ? res.rows[0].id : 1},`);
       console.log('  "postgres": { ... }');
       console.log('}\\n');

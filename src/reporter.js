@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const db = require('./db');
-const discord = require('./discord');
+const apprise = require('./apprise');
 const config = require('./config');
 
 async function executeReport(timeframe = 'Weekly', interval = '7 days') {
@@ -71,7 +71,7 @@ async function executeReport(timeframe = 'Weekly', interval = '7 days') {
     report += `- **Current Software**: [v${stats.currentVersion}](<https://www.notateslaapp.com/software-updates/version/${stats.currentVersion}/release-notes>)\n`;
   }
 
-  await discord.sendMessage(report);
+  await apprise.sendMessage(report);
   console.log('Report sent.');
 }
 

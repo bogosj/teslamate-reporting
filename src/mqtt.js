@@ -1,6 +1,6 @@
 const mqtt = require('mqtt');
 const config = require('./config');
-const discord = require('./discord');
+const apprise = require('./apprise');
 
 function init() {
   const client = mqtt.connect(config.mqtt.host, {
@@ -23,11 +23,11 @@ function init() {
     const metric = parts[3];
 
     if (metric === 'update_available' && val === 'true' && config.alerts.softwareUpdate) {
-      discord.sendMessage(`🚗 Car ${carId}: A software update is available!`);
+      apprise.sendMessage(`🚗 Car ${carId}: A software update is available!`);
     } else if (metric === 'state' && config.alerts.charging) {
-      if (val === 'charging') discord.sendMessage(`🔋 Car ${carId}: Charging started.`);
+      if (val === 'charging') apprise.sendMessage(`🔋 Car ${carId}: Charging started.`);
     } else if (metric.startsWith('tpms_soft_warning') && val === 'true' && config.alerts.security) {
-      discord.sendMessage(`⚠️ Car ${carId}: Tire pressure warning detected (${metric}).`);
+      apprise.sendMessage(`⚠️ Car ${carId}: Tire pressure warning detected (${metric}).`);
     }
   });
 }

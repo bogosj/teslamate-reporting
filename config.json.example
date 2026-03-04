@@ -1,6 +1,5 @@
 {
-  "discordToken": "YOUR_DISCORD_BOT_TOKEN_HERE",
-  "discordUserId": "YOUR_DISCORD_USER_ID_HERE",
+  "appriseUrl": "apprise://...",
   "carId": 1,
   "postgres": {
     "host": "database",
