@@ -33,7 +33,7 @@ function init() {
       apprise.sendMessage(`🚗 Car ${carId}: A software update is available!`);
     } else if (metric === 'state' && config.alerts.charging) {
       if (val === 'charging') {
-        const odoText = carOdometers[carId] ? ` - Odometer: ${Math.round(carOdometers[carId]).toLocaleString()} miles` : '';
+        const odoText = carOdometers[carId] ? ` - Odometer: ${Math.round(carOdometers[carId] * 0.621371).toLocaleString()} miles` : '';
         apprise.sendMessage(`🔋 Car ${carId}: Charging started.${odoText}`);
       }
     } else if (metric.startsWith('tpms_soft_warning') && val === 'true' && config.alerts.security) {
